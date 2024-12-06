@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.11/dist/vue.js"></script>
+
+    <title>Document</title>
+</head>
+<body>
+
+<!-- https://v2.ja.vuejs.org/v2/cookbook/client-side-storage -->
+    <div id="app">
+        <h2>Books</h2>
+        <div v-for="(book, n) in books">
+          <p>
+            <span class="cat">{{ book }}</span>
+            <button @click="removeBook(n)">Remove</button>
+          </p>
+        </div>
+      
+        <p>
+          <input v-model="newBook">
+          <button @click="addBook">Add Book</button>
+        </p>
+      
+      </div>
+
+<script>
+    // key 設定
+    const STORAGE_KEY = 'books'
+    let app = new Vue({
+        el: '#app',
+            data () {
+                return {
+                    books: [],
+                    newBook: null
+                }
+            },
+
+            mounted() {
+                if (localStorage.getItem(STORAGE_KEY)) {
+                try {
+                    // json => 文字列 　デシリアライズ 
+                    this.books = JSON.parse(localStorage.getItem(STORAGE_KEY));
+                } catch(e) {
+                    localStorage.removeItem(STORAGE_KEY);
+                }
+                }
+            },
+
+            methods: {
+                addBook() {
+                // 実際に何かしたことを入力する
+                if (!this.newBook) {
+                    return;
+                }
+
+           //     this.cats.push(this.newCat);
+                this.books.push(this.newBook);
+                this.newBook = '';
+                this.saveBook();
+                },
+                removeBook(x) {
+           //     this.cats.splice(x, 1);
+                this.books.splice(x, 1);
+                this.saveBook(); // ローカルストレージ 保存
+                },
+
+                saveBook() {
+                // ローカルストレージ保存の為 json をシリアライズ 
+                const parsed = JSON.stringify(this.books);
+                localStorage.setItem(STORAGE_KEY, parsed);
+                }
+            }
+
+    })
+
+</script>
+    
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.11/dist/vue.js"></script>
+
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <input type="text" v-model="keyword">
+        <button @click="search(keyword)">検索</button>
+
+        <div>
+            <ul>
+                <li v-for="search in searchResults">
+                    {{ search.title }}
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let app = new Vue({
+            el: '#app',
+            data() {
+                return {
+                    keyword: '',
+                    searchResults: []
+                }
+            },
+            methods: {
+                async search(keyword) {
+                    this.searchResults = []
+
+                    // === google bookes API 処理
+                    const baseUrl = "https://www.googleapis.com/books/v1/volumes?"
+                    const params = {
+                        q: `intitle:${keyword}`,
+                        maxResults: 40
+                    }
+                // === クエリーストリング作成
+                const queryParams = new URLSearchParams(params)
+                console.log(baseUrl + queryParams)
+                // 出力結果
+                // https://www.googleapis.com/books/v1/volumes?q=intitle%3Avue.js&maxResults=40
+
+                // fetch で json取得
+                const response = await fetch(baseUrl + queryParams)
+                .then( response => response.json())
+
+                console.log(response)
+                
+                // 取得した情報で、必要な情報を 配列へ push
+                for (let book of response.items ) {
+                    let title = book.volumeInfo.title // タイトル
+                    let img = book.volumeInfo.imageLinks // 画像パス
+                    let description = book.volumeInfo.description // 説明文
+
+                    console.log(title + '\n')
+                    console.log(img + '\n')
+                    console.log(description + '\n')
+
+                    // 配列へ挿入
+                    this.searchResults.push({
+                        title: title ? title : '',
+                        image: img ? img.thumbnail : '',
+                        description: description ? description.slice(0, 40) : ''
+                    })
+
+                }
+
+
+                }
+               
+            }
+
+            
+        })
+
+    </script>
+</body>
+</html>
